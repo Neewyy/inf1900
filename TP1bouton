@@ -1,0 +1,56 @@
+#define F_CPU 8000000UL  // 1 MHz
+#include <util/delay.h>
+#include <avr/io.h> 
+
+
+int main()
+{
+  DDRA = 0xff; // PORT A est en mode sortie
+  DDRB = 0xff; // PORT B est en mode sortie
+  DDRC = 0xff; // PORT C est en mode sortie
+  DDRD = 0x00; // PORT D est en mode entre
+   // le compteur est initialise a 0.
+                            // c'est un compteur de 32 bits
+    int state=0;
+    PORTA=2;
+  for(;;)//boucle sans fin
+
+  { 
+    int counter=0;
+    if (state%3==2)
+    {
+        PORTA=2;
+        _delay_ms(double((10)));
+        PORTA=1;
+        _delay_ms(double((10)));
+    }
+    if ( PIND & 0x04 )
+    {
+        state++;
+
+    while( PIND & 0x04 && counter<100){
+    if (state%3==2)
+    {
+        PORTA=2;
+        _delay_ms(double((5)));
+        PORTA=1;
+        _delay_ms(double((5)));
+        counter++;
+    }
+    if (state%3==0)
+    {
+        PORTA=2;
+        _delay_ms(double((10)));
+        counter++;
+    }
+    if (state % 3 == 1)
+    {
+        PORTA=1;
+        _delay_ms(double((10)));
+        counter++;
+    }
+    }
+  }
+  }
+  return 0;
+}
