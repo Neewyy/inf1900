@@ -6,36 +6,36 @@ Correcteur                                : CORRECTEUR
 Noms des auteurs                          : Trinh Huynh Minh Tam Kevin et Charbonneau Étienne
 Identifications matérielles (Broches I/O) : D2 est l'entré alors que PA0 et PA1 sont les sorties.
 Description du programme                  : 
-Quand la carte mère démarre, la DEL libre doit s'allumer en rouge. Si le bouton-poussoir libre pour usage général est pesé, la DEL affiche la couleur ambre. 
+Quand la carte mère démarre, la DEL libre doit s'allumer en rouge. Si le bouton-poussoir libre pour usage général est pesé, la DEL affiche la couleur AMBER. 
 Quand le bouton-poussoir est relâché, la DEL devient verte. Si le bouton est de nouveau pesé, la DEL prend la couleur rouge encore. Quand il est relâché, la DEL s'éteint. 
 Si le bouton est de nouveau pesé, la DEL affiche la couleur verte. 
 Quand il est relâché, la DEL tourne au rouge ce qui fait que la carte mère est de retour à son état initial et tout peut recommencer.
 +--------------+--------+--------------+-------+
 | État présent | PIN D2 | État suivant | PORTA |
 +--------------+--------+--------------+-------+
-| Rouge 1      | 0      | Rouge 1      | 2     |
+| Red 1        | 0      | Red 1        | 2     |
 +--------------+--------+--------------+-------+
-| Rouge 1      | 1      | Ambre Vert   | 2     |
+| Red 1        | 1      | Amber        | 2     |
 +--------------+--------+--------------+-------+
-| Ambre Rouge  | 1      | Ambre        | 2     |
+| Amber        | 1      | Amber        | X     | Alterne entre la couleur vert et rouge très rapidement
 +--------------+--------+--------------+-------+
-| Ambre Rouge  | 0      | Vert 1       | 2     |
+| Amber        | 0      | Green 1      | 2     |
 +--------------+--------+--------------+-------+
-| Vert 1       | 1      | Rouge 2      | 1     |
+| Green 1      | 1      | Red 2        | 1     |
 +--------------+--------+--------------+-------+
-| Vert 1       | 0      | Vert 1       | 1     |
+| Green 1      | 0      | Green 1      | 1     |
 +--------------+--------+--------------+-------+
-| Rouge 2      | 1      | Rouge 2      | 2     |
+| Red 2        | 1      | Red 2        | 2     |
 +--------------+--------+--------------+-------+
-| Rouge 2      | 0      | Gris 1       | 2     |
+| Red 2        | 0      | Grey 1       | 2     |
 +--------------+--------+--------------+-------+
-| Gris 1       | 1      | Vert 2       | 0     |
+| Grey 1       | 1      | Green 2      | 0     |
 +--------------+--------+--------------+-------+
-| Gris 1       | 0      | Gris 1       | 0     |
+| Grey 1       | 0      | Grey 1       | 0     |
 +--------------+--------+--------------+-------+
-| Vert 2       | 1      | Vert 2       | 1     |
+| Green 2      | 1      | Green 2      | 1     |
 +--------------+--------+--------------+-------+
-| Vert 2       | 0      | Rouge 1      | 1     |
+| Green 2      | 0      | Red 1        | 1     |
 +--------------+--------+--------------+-------+
 */
 #define F_CPU 8000000UL // 1 MHz
@@ -55,7 +55,8 @@ bool debounce()
     }
     return false;
 }
-void couleurAmbre()
+void amberColor
+()
 {
     do
     {
@@ -66,61 +67,62 @@ void couleurAmbre()
 }
 enum class State
 {
-    Rouge1,
-    Ambre,
-    Vert1,
-    Rouge2,
-    Gris,
-    Vert2
+    RED1,
+    AMBER,
+    GREEN1,
+    RED2,
+    GREY,
+    GREEN2
 };
 int main()
 {
     DDRA = 0xff; 
     DDRD = 0x00;
-    State etatPresent = State::Rouge1;
+    State presentState = State::RED1;
     while (true)
     {
         debounce();
-        switch (etatPresent)
+        switch (presentState)
         {
-        case State::Rouge1:
+        case State::RED1:
             PORTA = RED;
             if (debounce())
             {
-                etatPresent = State::Ambre;
+                presentState = State::AMBER;
             }
             break;
-        case State::Ambre:
-            couleurAmbre();
-            etatPresent = State::Vert1;
+        case State::AMBER:
+            amberColor
+            ();
+            presentState = State::GREEN1;
             break;
-        case State::Vert1:
+        case State::GREEN1:
             PORTA = GREEN;
             if (debounce())
             {
-                etatPresent = State::Rouge2;
+                presentState = State::RED2;
             }
             break;
-        case State::Rouge2:
+        case State::RED2:
             PORTA = RED;
             if (!(debounce()))
             {
 
-                etatPresent = State::Gris;
+                presentState = State::GREY;
             }
             break;
-        case State::Gris:
+        case State::GREY:
             PORTA = OFF_LED;
             if (debounce())
             {
-                etatPresent = State ::Vert2;
+                presentState = State ::GREEN2;
             }
             break;
-        case State ::Vert2:
+        case State ::GREEN2:
             PORTA = GREEN;
             if (!debounce())
             {
-                etatPresent = State::Rouge1;
+                presentState = State::RED1;
             }
             break;
         }
