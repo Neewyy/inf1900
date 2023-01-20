@@ -62,15 +62,9 @@ enum class State
 };
 int main()
 {
-
     DDRA = 0xff; // PORT A est en mode sortie
-    DDRB = 0xff; // PORT B est en mode sortie
-    DDRC = 0xff; // PORT C est en mode sortie
     DDRD = 0x00; // PORT D est en mode entre
-                 // le compteur est initialise a 0.
-                 // c'est un compteur de 32 bits
     State presentState = State::Up0;
-
     while (true)
     {
         switch (presentState)

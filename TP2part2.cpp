@@ -46,7 +46,6 @@ const uint16_t D2 = 1<<PD2;
 const uint16_t GREEN = 1 << PA0;
 const uint16_t RED = 1 << PA1;
 const uint16_t OFF_LED = 1 << PA2;
-
 bool debounce()
 {
     if (PIND & D2)
@@ -65,7 +64,6 @@ void couleurAmbre()
         PORTA = GREEN;
     } while (debounce());
 }
-
 enum class State
 {
     Rouge1,
@@ -77,10 +75,8 @@ enum class State
 };
 int main()
 {
-    DDRA = 0xff; // PORT A est en mode sortie
-    DDRB = 0xff; // PORT B est en mode sortie
-    DDRC = 0xff; // PORT C est en mode sortie
-    DDRD = 0x00; // PORT D est en monde entré
+    DDRA = 0xff; 
+    DDRD = 0x00;
     State etatPresent = State::Rouge1;
     while (true)
     {
