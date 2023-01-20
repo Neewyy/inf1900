@@ -1,6 +1,6 @@
 /*
 Travail                                   : Travail pratique No. 2 sur les machines à états finis logicielles
-Section #                                 : 01
+Section #                                 : 03
 Équipe #                                  : 69
 Correcteur                                : CORRECTEUR
 Noms des auteurs                          : Trinh Huynh Minh Tam Kevin et Charbonneau Étienne
