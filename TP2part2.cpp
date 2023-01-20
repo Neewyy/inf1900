@@ -1,12 +1,15 @@
-#define F_CPU 8000000UL // 1 MHz
-#include <util/delay.h>
-#include <avr/io.h>
-const uint16_t TRANSITION_DELAY = 10;
-const bool BOUTON = (PIND & 0x04);
-const uint16_t GREEN = 1 << PA0;
-const uint16_t RED = 1 << PA1;
-const uint16_t OFF_LED = 1 << PA2;
 /*
+Travail                                   : Travail pratique No. 2 sur les machines à états finis logicielles
+Section #                                 : SECTION
+Équipe #                                  : 69
+Correcteur                                : CORRECTEUR
+Noms des auteurs                          : Trinh Huynh Minh Tam Kevin et Charbonneau Étienne
+Identifications matérielles (Broches I/O) : D2 est l'entré alors que PA0 et PA1 sont les sorties.
+Description du programme                  : 
+Quand la carte mère démarre, la DEL libre doit s'allumer en rouge. Si le bouton-poussoir libre pour usage général est pesé, la DEL affiche la couleur ambre. 
+Quand le bouton-poussoir est relâché, la DEL devient verte. Si le bouton est de nouveau pesé, la DEL prend la couleur rouge encore. Quand il est relâché, la DEL s'éteint. 
+Si le bouton est de nouveau pesé, la DEL affiche la couleur verte. 
+Quand il est relâché, la DEL tourne au rouge ce qui fait que la carte mère est de retour à son état initial et tout peut recommencer.
 +--------------+--------+--------------+-------+
 | État présent | PIN D2 | État suivant | PORTA |
 +--------------+--------+--------------+-------+
@@ -14,11 +17,7 @@ const uint16_t OFF_LED = 1 << PA2;
 +--------------+--------+--------------+-------+
 | Rouge 1      | 1      | Ambre Vert   | 2     |
 +--------------+--------+--------------+-------+
-| Ambre Vert   | 1      | Ambre Rouge  | 1     |
-+--------------+--------+--------------+-------+
-| Ambre Vert   | 0      | Vert 1       | 1     |
-+--------------+--------+--------------+-------+
-| Ambre Rouge  | 1      | Ambre Vert   | 2     |
+| Ambre Rouge  | 1      | Ambre        | 2     |
 +--------------+--------+--------------+-------+
 | Ambre Rouge  | 0      | Vert 1       | 2     |
 +--------------+--------+--------------+-------+
@@ -39,9 +38,18 @@ const uint16_t OFF_LED = 1 << PA2;
 | Vert 2       | 0      | Rouge 1      | 1     |
 +--------------+--------+--------------+-------+
 */
+#define F_CPU 8000000UL // 1 MHz
+#include <util/delay.h>
+#include <avr/io.h>
+const uint16_t TRANSITION_DELAY = 10;
+const uint16_t D2 = 1<<PD2;
+const uint16_t GREEN = 1 << PA0;
+const uint16_t RED = 1 << PA1;
+const uint16_t OFF_LED = 1 << PA2;
+
 bool debounce()
 {
-    if (PIND & 0x04)
+    if (PIND & D2)
     {
         _delay_ms(TRANSITION_DELAY);
         return true;
@@ -74,7 +82,7 @@ int main()
     DDRC = 0xff; // PORT C est en mode sortie
     DDRD = 0x00; // PORT D est en monde entré
     State etatPresent = State::Rouge1;
-    for (;;) // boucle sans fin¨
+    while (true)
     {
         debounce();
         switch (etatPresent)
