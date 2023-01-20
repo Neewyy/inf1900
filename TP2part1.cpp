@@ -8,6 +8,7 @@ Identifications matérielles (Broches I/O) : D2 est l'entré alors que PA0 et PA
 Description du programme                  : Les compteurs sont une forme de machines à états. On veut ici simplement que la DEL soit éteinte au départ. 
                                             On doit appuyer et relâcher 3 fois le bouton-poussoir avant que la DEL tourne au vert pendant exactement 2 secondes. 
                                             Par la suite, on revient au départ pour pouvoir recommencer.
++--------------+--------+--------------+-----------+-----------+
 | État présent | PIN D2 | État suivant | Sortie A0 | Sortie A1 |
 +--------------+--------+--------------+-----------+-----------+
 | Up 0         | 0      | Down 1       | 0         | 0         |
