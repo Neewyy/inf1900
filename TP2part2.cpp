@@ -41,11 +41,11 @@ Quand il est relâché, la DEL tourne au rouge ce qui fait que la carte mère es
 #define F_CPU 8000000UL // 1 MHz
 #include <util/delay.h>
 #include <avr/io.h>
-const uint16_t TRANSITION_DELAY = 10;
-const uint16_t D2 = 1<<PD2;
-const uint16_t GREEN = 1 << PA0;
-const uint16_t RED = 1 << PA1;
-const uint16_t OFF_LED = 1 << PA2;
+const int TRANSITION_DELAY = 10;
+const int D2 = 1 << PD2;
+const int GREEN_LED = 1 << PA0;
+const int RED_LED = 1 << PA1;
+const int OFF_LED = 1 << PA2;
 bool debounce()
 {
     if (PIND & D2)
@@ -60,16 +60,16 @@ void amberColor
 {
     do
     {
-        PORTA = RED;
+        PORTA = RED_LED;
         debounce();
-        PORTA = GREEN;
+        PORTA = GREEN_LED;
     } while (debounce());
 }
 enum class State
 {
-    RED1,
+    RED,
     AMBER,
-    GREEN1,
+    GREEN,
     RED2,
     GREY,
     GREEN2
@@ -78,14 +78,14 @@ int main()
 {
     DDRA = 0xff; 
     DDRD = 0x00;
-    State presentState = State::RED1;
+    State presentState = State::RED;
     while (true)
     {
         debounce();
         switch (presentState)
         {
-        case State::RED1:
-            PORTA = RED;
+        case State::RED:
+            PORTA = RED_LED;
             if (debounce())
             {
                 presentState = State::AMBER;
@@ -94,18 +94,18 @@ int main()
         case State::AMBER:
             amberColor
             ();
-            presentState = State::GREEN1;
+            presentState = State::GREEN;
             break;
-        case State::GREEN1:
-            PORTA = GREEN;
+        case State::GREEN:
+            PORTA = GREEN_LED;
             if (debounce())
             {
                 presentState = State::RED2;
             }
             break;
         case State::RED2:
-            PORTA = RED;
-            if (!(debounce()))
+            PORTA = RED_LED;
+            if !(debounce())
             {
 
                 presentState = State::GREY;
@@ -119,10 +119,10 @@ int main()
             }
             break;
         case State ::GREEN2:
-            PORTA = GREEN;
-            if (!debounce())
+            PORTA = GREEN_LED;
+            if !debounce()
             {
-                presentState = State::RED1;
+                presentState = State::RED;
             }
             break;
         }

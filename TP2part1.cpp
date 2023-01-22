@@ -37,11 +37,11 @@ Description du programme                  : Les compteurs sont une forme de mach
 #define F_CPU 8000000UL // 1 MHz
 #include <util/delay.h>
 #include <avr/io.h>
-const uint16_t TRANSITION_DELAY = 10;
-const uint16_t D2 = 1<<PD2;
-const uint16_t GREEN = 1 << PA0;
-const uint16_t RED = 1 << PA1;
-const uint16_t OFF_LED = 1 << PA2;
+const int TRANSITION_DELAY = 10;
+const int D2 = 1<<PD2;
+const int GREEN_LED = 1 << PA0;
+const int RED_LED = 1 << PA1;
+const int OFF_LED = 1 << PA2;
 bool debounce()
 {
     if (PIND & D2)
@@ -58,7 +58,7 @@ enum class State
     Down1,
     Down2,
     Up2,
-    Green
+    GREEN
 };
 int main()
 {
@@ -77,7 +77,7 @@ int main()
             }
             break;
         case State::Down1:
-            if (!(debounce()))
+            if !(debounce())
             {
                 presentState = State ::Up1;
                 PORTA = OFF_LED;
@@ -91,7 +91,7 @@ int main()
             }
             break;
         case State::Down2:
-            if (!(debounce()))
+            if !(debounce())
             {
                 presentState = State ::Up2;
                 PORTA = OFF_LED;
@@ -100,13 +100,13 @@ int main()
         case State::Up2:
             if (debounce())
             {
-                presentState = State ::Green;
+                presentState = State ::GREEN;
                 PORTA = OFF_LED;
             }
             break;
-        case State::Green:
+        case State::GREEN:
             presentState = State ::Up0;
-            PORTA = GREEN;
+            PORTA = GREEN_LED;
             _delay_ms(2000);
             PORTA = OFF_LED;
             break;
