@@ -5,42 +5,46 @@ Section #                                 : 03
 Correcteur                                : CORRECTEUR
 Noms des auteurs                          : Trinh Huynh Minh Tam Kevin et Charbonneau Étienne
 Identifications matérielles (Broches I/O) : D2 est l'entré alors que PA0 et PA1 sont les sorties.
-Description du programme                  : Les compteurs sont une forme de machines à états. On veut ici simplement que la DEL soit éteinte au départ. 
-                                            On doit appuyer et relâcher 3 fois le bouton-poussoir avant que la DEL tourne au vert pendant exactement 2 secondes. 
-                                            Par la suite, on revient au départ pour pouvoir recommencer.
-+--------------+--------+--------------+-----------+-----------+
-| État présent | PIN D2 | État suivant | Sortie A0 | Sortie A1 |
-+--------------+--------+--------------+-----------+-----------+
-| Up 0         | 0      | Down 1       | 0         | 0         |
-+--------------+--------+--------------+-----------+-----------+
-| Up 0         | 1      | Up 0         | 0         | 0         |
-+--------------+--------+--------------+-----------+-----------+
-| Down 1       | 0      | Down 1       | 0         | 0         |
-+--------------+--------+--------------+-----------+-----------+
-| Down 1       | 1      | Up 1         | 0         | 0         |
-+--------------+--------+--------------+-----------+-----------+
-| Up 1         | 0      | Down 2       | 0         | 0         |
-+--------------+--------+--------------+-----------+-----------+
-| Up 1         | 1      | Up 1         | 0         | 0         |
-+--------------+--------+--------------+-----------+-----------+
-| Down 2       | 0      | Down 2       | 0         | 0         |
-+--------------+--------+--------------+-----------+-----------+
-| Down 2       | 1      | Up 2         | 0         | 0         |
-+--------------+--------+--------------+-----------+-----------+
-| Up 2         | 0      | Down 3       | 0         | 0         |
-+--------------+--------+--------------+-----------+-----------+
-| Up 2         | 1      | Up 2         | 0         | 0         |
-+--------------+--------+--------------+-----------+-----------+
-| Green        | X      | Up 0         | 1         | 0         |
-+--------------+--------+--------------+-----------+-----------+
+Description du programme                  : 
+Quand la carte mère démarre, la DEL libre doit s'allumer en rouge. Si le bouton-poussoir libre pour usage général est pesé, la DEL affiche la couleur AMBER. 
+Quand le bouton-poussoir est relâché, la DEL devient verte. Si le bouton est de nouveau pesé, la DEL prend la couleur rouge encore. Quand il est relâché, la DEL s'éteint. 
+Si le bouton est de nouveau pesé, la DEL affiche la couleur verte. 
+Quand il est relâché, la DEL tourne au rouge ce qui fait que la carte mère est de retour à son état initial et tout peut recommencer.
++--------------+--------+--------------+-------+
+| État présent | PIN D2 | État suivant | PORTA |
++--------------+--------+--------------+-------+
+| RED_ONE 1    | 0      | RED_ONE 1    | 2     |
++--------------+--------+--------------+-------+
+| RED_ONE 1    | 1      | AMBER        | 2     |
++--------------+--------+--------------+-------+
+| AMBER        | 1      | AMBER        | X     | Alterne entre la couleur vert et rouge très rapidement
++--------------+--------+--------------+-------+
+| AMBER        | 0      | GREEN_ONE 1  | 2     |
++--------------+--------+--------------+-------+
+| GREEN_ONE 1  | 1      | RED_ONE 2    | 1     |
++--------------+--------+--------------+-------+
+| GREEN_ONE 1  | 0      | GREEN_ONE 1  | 1     |
++--------------+--------+--------------+-------+
+| RED_ONE 2    | 1      | RED_ONE 2    | 2     |
++--------------+--------+--------------+-------+
+| RED_ONE 2    | 0      | Grey 1       | 2     |
++--------------+--------+--------------+-------+
+| Grey 1       | 1      | GREEN_ONE 2  | 0     |
++--------------+--------+--------------+-------+
+| Grey 1       | 0      | Grey 1       | 0     |
++--------------+--------+--------------+-------+
+| GREEN_ONE 2  | 1      | GREEN_ONE 2  | 1     |
++--------------+--------+--------------+-------+
+| GREEN_ONE 2  | 0      | RED_ONE 1    | 1     |
++--------------+--------+--------------+-------+
 */
 #define F_CPU 8000000UL // 1 MHz
 #include <util/delay.h>
 #include <avr/io.h>
 const int TRANSITION_DELAY = 10;
-const int D2 = 1<<PD2;
-const int GREEN_LED = 1 << PA0;
-const int RED_LED = 1 << PA1;
+const int D2 = 1 << PD2;
+const int GREEN_ONE_LED = 1 << PA0;
+const int RED_ONE_LED = 1 << PA1;
 const int OFF_LED = 1 << PA2;
 bool debounce()
 {
@@ -51,66 +55,76 @@ bool debounce()
     }
     return false;
 }
+void AMBERColor
+()
+{
+    do
+    {
+        PORTA = RED_ONE_LED;
+        debounce();
+        PORTA = GREEN_ONE_LED;
+    } while (debounce());
+}
 enum class State
 {
-    Up0,
-    Up1,
-    Down1,
-    Down2,
-    Up2,
-    GREEN
+    RED_ONE,
+    AMBER,
+    GREEN_ONE,
+    RED_TWO,
+    GREY,
+    GREEN_ONE_TWO
 };
 int main()
 {
-    DDRA = 0xff; // PORT A est en mode sortie
-    DDRD = 0x00; // PORT D est en mode entre
-    State presentState = State::Up0;
+    DDRA = 0xff; 
+    DDRD = 0x00;
+    State presentState = State::RED_ONE;
     while (true)
     {
+        debounce();
         switch (presentState)
         {
-        case State::Up0:
+        case State::RED_ONE:
+            PORTA = RED_ONE_LED;
             if (debounce())
             {
-                presentState = State ::Down1;
-                PORTA = OFF_LED;
+                presentState = State::AMBER;
             }
             break;
-        case State::Down1:
+        case State::AMBER:
+            AMBERColor
+            ();
+            presentState = State::GREEN_ONE;
+            break;
+        case State::GREEN_ONE:
+            PORTA = GREEN_ONE_LED;
+            if (debounce())
+            {
+                presentState = State::RED_TWO;
+            }
+            break;
+        case State::RED_TWO:
+            PORTA = RED_ONE_LED;
             if !(debounce())
             {
-                presentState = State ::Up1;
-                PORTA = OFF_LED;
+
+                presentState = State::GREY;
             }
             break;
-        case State::Up1:
-            if (debounce())
-            {
-                presentState = State ::Down2;
-                PORTA = OFF_LED;
-            }
-            break;
-        case State::Down2:
-            if !(debounce())
-            {
-                presentState = State ::Up2;
-                PORTA = OFF_LED;
-            }
-            break;
-        case State::Up2:
-            if (debounce())
-            {
-                presentState = State ::GREEN;
-                PORTA = OFF_LED;
-            }
-            break;
-        case State::GREEN:
-            presentState = State ::Up0;
-            PORTA = GREEN_LED;
-            _delay_ms(2000);
+        case State::GREY:
             PORTA = OFF_LED;
+            if (debounce())
+            {
+                presentState = State ::GREEN_ONE_TWO;
+            }
+            break;
+        case State ::GREEN_ONE_TWO:
+            PORTA = GREEN_ONE_LED;
+            if !debounce()
+            {
+                presentState = State::RED_ONE;
+            }
             break;
         }
     }
-    return 0;
 }
