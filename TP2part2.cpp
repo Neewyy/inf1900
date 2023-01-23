@@ -13,29 +13,29 @@ Quand il est relâché, la DEL tourne au rouge ce qui fait que la carte mère es
 +--------------+--------+--------------+-------+
 | État présent | PIN D2 | État suivant | PORTA |
 +--------------+--------+--------------+-------+
-| Red 1        | 0      | Red 1        | 2     |
+| RED_ONE 1    | 0      | RED_ONE 1    | 2     |
 +--------------+--------+--------------+-------+
-| Red 1        | 1      | Amber        | 2     |
+| RED_ONE 1    | 1      | AMBER        | 2     |
 +--------------+--------+--------------+-------+
-| Amber        | 1      | Amber        | X     | Alterne entre la couleur vert et rouge très rapidement
+| AMBER        | 1      | AMBER        | X     | Alterne entre la couleur vert et rouge très rapidement
 +--------------+--------+--------------+-------+
-| Amber        | 0      | Green 1      | 2     |
+| AMBER        | 0      | GREEN_ONE 1  | 2     |
 +--------------+--------+--------------+-------+
-| Green 1      | 1      | Red 2        | 1     |
+| GREEN_ONE 1  | 1      | RED_ONE 2    | 1     |
 +--------------+--------+--------------+-------+
-| Green 1      | 0      | Green 1      | 1     |
+| GREEN_ONE 1  | 0      | GREEN_ONE 1  | 1     |
 +--------------+--------+--------------+-------+
-| Red 2        | 1      | Red 2        | 2     |
+| RED_ONE 2    | 1      | RED_ONE 2    | 2     |
 +--------------+--------+--------------+-------+
-| Red 2        | 0      | Grey 1       | 2     |
+| RED_ONE 2    | 0      | Grey 1       | 2     |
 +--------------+--------+--------------+-------+
-| Grey 1       | 1      | Green 2      | 0     |
+| Grey 1       | 1      | GREEN_ONE 2  | 0     |
 +--------------+--------+--------------+-------+
 | Grey 1       | 0      | Grey 1       | 0     |
 +--------------+--------+--------------+-------+
-| Green 2      | 1      | Green 2      | 1     |
+| GREEN_ONE 2  | 1      | GREEN_ONE 2  | 1     |
 +--------------+--------+--------------+-------+
-| Green 2      | 0      | Red 1        | 1     |
+| GREEN_ONE 2  | 0      | RED_ONE 1    | 1     |
 +--------------+--------+--------------+-------+
 */
 #define F_CPU 8000000UL // 1 MHz
@@ -43,8 +43,8 @@ Quand il est relâché, la DEL tourne au rouge ce qui fait que la carte mère es
 #include <avr/io.h>
 const int TRANSITION_DELAY = 10;
 const int D2 = 1 << PD2;
-const int GREEN_LED = 1 << PA0;
-const int RED_LED = 1 << PA1;
+const int GREEN_ONE_LED = 1 << PA0;
+const int RED_ONE_LED = 1 << PA1;
 const int OFF_LED = 1 << PA2;
 bool debounce()
 {
@@ -55,56 +55,56 @@ bool debounce()
     }
     return false;
 }
-void amberColor
+void AMBERColor
 ()
 {
     do
     {
-        PORTA = RED_LED;
+        PORTA = RED_ONE_LED;
         debounce();
-        PORTA = GREEN_LED;
+        PORTA = GREEN_ONE_LED;
     } while (debounce());
 }
 enum class State
 {
-    RED,
+    RED_ONE,
     AMBER,
-    GREEN,
-    RED2,
+    GREEN_ONE,
+    RED_TWO,
     GREY,
-    GREEN2
+    GREEN_ONE_TWO
 };
 int main()
 {
     DDRA = 0xff; 
     DDRD = 0x00;
-    State presentState = State::RED;
+    State presentState = State::RED_ONE;
     while (true)
     {
         debounce();
         switch (presentState)
         {
-        case State::RED:
-            PORTA = RED_LED;
+        case State::RED_ONE:
+            PORTA = RED_ONE_LED;
             if (debounce())
             {
                 presentState = State::AMBER;
             }
             break;
         case State::AMBER:
-            amberColor
+            AMBERColor
             ();
-            presentState = State::GREEN;
+            presentState = State::GREEN_ONE;
             break;
-        case State::GREEN:
-            PORTA = GREEN_LED;
+        case State::GREEN_ONE:
+            PORTA = GREEN_ONE_LED;
             if (debounce())
             {
-                presentState = State::RED2;
+                presentState = State::RED_TWO;
             }
             break;
-        case State::RED2:
-            PORTA = RED_LED;
+        case State::RED_TWO:
+            PORTA = RED_ONE_LED;
             if !(debounce())
             {
 
@@ -115,14 +115,14 @@ int main()
             PORTA = OFF_LED;
             if (debounce())
             {
-                presentState = State ::GREEN2;
+                presentState = State ::GREEN_ONE_TWO;
             }
             break;
-        case State ::GREEN2:
-            PORTA = GREEN_LED;
+        case State ::GREEN_ONE_TWO:
+            PORTA = GREEN_ONE_LED;
             if !debounce()
             {
-                presentState = State::RED;
+                presentState = State::RED_ONE;
             }
             break;
         }
