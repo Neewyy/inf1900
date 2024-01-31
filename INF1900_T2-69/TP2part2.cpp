@@ -3,7 +3,7 @@ Travail                                   : Travail pratique No. 2 sur les machi
 Section #                                 : 03
 Équipe #                                  : 69
 Correcteur                                : CORRECTEUR
-Noms des auteurs                          : Trinh Huynh Minh Tam Kevin et Charbonneau Étienne
+Noms des auteurs                          : 
 Identifications matérielles (Broches I/O) : D2 est l'entré alors que PA0 et PA1 sont les sorties.
 Description du programme                  : 
 Quand la carte mère démarre, la DEL libre doit s'allumer en rouge. Si le bouton-poussoir libre pour usage général est pesé, la DEL affiche la couleur AMBER. 
