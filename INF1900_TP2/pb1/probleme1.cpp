@@ -1,7 +1,7 @@
 /*
 Travail                                   : TP2 - Probleme 1
 Section #                                 : 03
-Équipe #                                  : 70
+Équipe #                                  : 
 Correcteur                                : CORRECTEUR
 Noms des auteurs                          : 
 Identifications matérielles (Broches I/O) : Entree a D2 ; sorties a PORTA0 et PORTA1.

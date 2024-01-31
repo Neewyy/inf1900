@@ -1,7 +1,7 @@
 ﻿/*
 Travail                                   : TP6 - Probleme 1
 Section #                                 : 03
-Equipe #                                  : 70
+Equipe #                                  : 
 Correcteur                                : CORRECTEUR
 Noms des auteurs                          : 
 Identifications materielles (Broches I/O) : Entree a D2 ; sorties a PORTA0 et PORTA1.

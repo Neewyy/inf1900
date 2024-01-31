@@ -1,7 +1,7 @@
 ﻿/*
 Travail                                   : TP5 - Probleme 1
 Section #                                 : 03
-�quipe #                                  : 70
+�quipe #                                  : 
 Correcteur                                : CORRECTEUR
 Noms des auteurs                          : Maiya Sewatari-Mercier et Nicolas Bilodeau
 Identifications mat�rielles (Broches I/O) : Entree a D2 ; sorties a PORTA0 et PORTA1.
